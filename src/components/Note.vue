@@ -37,7 +37,7 @@
         ></b-form-input>
       </b-form-group>
       </div>
-
+      
       <div v-else-if="isMoneyFunds">
       <b-form-group id="input-group-3-1" label="库存现金:" label-for="input-2-1">
         <b-form-input
