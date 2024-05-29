@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+import * as echarts from 'echarts'
 
 Vue.config.productionTip = false
     // Import Bootstrap and BootstrapVue CSS files (order is important)
@@ -16,6 +17,7 @@ import common from './common'
 Vue.prototype.$http = axios
 Vue.prototype.$url = 'http://localhost:5000'
 Vue.prototype.$common = common
+Vue.prototype.$echarts = echarts
 
 // Make BootstrapVue available throughout your project
 Vue.use(BootstrapVue)

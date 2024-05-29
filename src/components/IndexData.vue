@@ -95,7 +95,7 @@
       const upBorderColor = '#8A0000';
       const downColor = '#00da3c';
       const downBorderColor = '#008F28';
-      const data1 = [
+      const data0 = [
             ['2013/1/24', 2320.26, 2320.26, 2287.3, 2362.94],
             ['2013/1/25', 2300, 2291.3, 2288.26, 2308.38],
             ['2013/1/28', 2295.35, 2346.5, 2295.35, 2346.92],
@@ -186,7 +186,7 @@
             ['2013/6/13', 2190.1, 2148.35, 2126.22, 2190.1]
         ];
       return {
-        data0: this.splitData(data1),
+        data0: this.splitData(data0),
         startdate: this.formatDate(minDate),
         enddate: this.formatDate(maxDate),
         starttimeselected: "00:00:00",
@@ -269,7 +269,7 @@
       //获取所有站点名
       getWaterStations: async function () {
         //TODO: 需要修改成固定值 
-        const url = "http://water.ecfun.cc:10075/public/water/waterauto_pos";
+        const url = this.$common.baseUrl + "money_tracker/showtypes";
         let response = await this.$http.get(url);
         const waterstations = [];
         response.data["resData"]["resList"].forEach((station) => {
@@ -322,7 +322,7 @@
       },
       //TODO: 考虑多选情况，例如选择多个站点和多个不同指标
       getTimeLine: async function () {
-        const url = "http://water.ecfun.cc:10075/public/water/waterauto_trends";
+        const url = this.$common.baseUrl + "money_tracker/showtypes";
         let response = await this.$http.get(url, {
           params: {
             surfaceName: this.waterselected[0],
@@ -338,7 +338,7 @@
       },
       //TODO: 考虑多选情况，例如选择多个站点和多个不同指标
       queryWater: async function (surfaceName, indicator) {
-        const url = "http://water.ecfun.cc:10075/public/water/waterauto_trends";
+        const url = this.$common.baseUrl + "money_tracker/showtypes";
         let response = await this.$http.get(url, {
           params: {
             surfaceName: surfaceName,
@@ -363,14 +363,14 @@
       },
       calculateMA: function (dayCount) {
         var result = [];
-        for (var i = 0, len = data0.values.length; i < len; i++) {
+        for (var i = 0, len = this.data0.values.length; i < len; i++) {
             if (i < dayCount) {
                 result.push('-');
                 continue;
             }
             var sum = 0;
             for (var j = 0; j < dayCount; j++) {
-                sum += +data0.values[i - j][1];
+                sum += +this.data0.values[i - j][1];
             }
             result.push(sum / dayCount);
         }
@@ -385,110 +385,184 @@
                 data: ['日K', 'MA5', 'MA10', 'MA20', 'MA30'],
                 inactiveColor: '#777'
             },
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                animation: false,
-                type: 'cross',
-                lineStyle: {
-                    color: '#376df4',
-                    width: 2,
-                    opacity: 1
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
                 }
-            }
-        },
-        xAxis: {
-            type: 'category',
-            data: dates,
-            axisLine: { lineStyle: { color: '#8392A5' } }
-        },
-        yAxis: {
-            scale: true,
-            axisLine: { lineStyle: { color: '#8392A5' } },
-            splitLine: { show: false }
-        },
-        grid: {
-            bottom: 80
-        },
-        dataZoom: [
-        {
-            textStyle: {
-                color: '#8392A5'
             },
-            handleIcon:
-                'path://M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
-            dataBackground: {
-                areaStyle: {
-                    color: '#8392A5'
+            xAxis: {
+                type: 'category',
+                data: this.data0.categoryData,
+                boundaryGap: false,
+                axisLine: { onZero: false },
+                splitLine: { show: false },
+                min: 'dataMin',
+                max: 'dataMax'
+            },
+            yAxis: {
+                scale: true,
+                splitArea: {
+                    show: true
+                }
+            },
+            grid: {
+                left: '10%',
+                right: '10%',
+                bottom: '15%'
+            },
+            dataZoom: [
+            {
+                type: 'inside',
+                start: 50,
+                end: 100
+            },
+            {
+                show: true,
+                type: 'slider',
+                top: '90%',
+                start: 50,
+                end: 100
+            }
+            ],
+            series: [
+            {
+                name: '日K',
+                type: 'candlestick',
+                data: this.data0.values,
+                itemStyle: {
+                    color: this.upColor,
+                    color0: this.downColor,
+                    borderColor: this.upBorderColor,
+                    borderColor0: this.downBorderColor
                 },
-                lineStyle: {
-                    opacity: 0.8,
-                    color: '#8392A5'
+                markPoint: {
+                    label: {
+                        formatter: function (param) {
+                            return param != null ? Math.round(param.value) + '' : '';
+                        }
+                    },
+                    data: [
+                        {
+                            name: 'Mark',
+                            coord: ['2013/5/31', 2300],
+                            value: 2300,
+                            itemStyle: {
+                            color: 'rgb(41,60,85)'
+                            }
+                        },
+                        {
+                            name: 'highest value',
+                            type: 'max',
+                            valueDim: 'highest'
+                        },
+                        {
+                            name: 'lowest value',
+                            type: 'min',
+                            valueDim: 'lowest'
+                        },
+                        {
+                            name: 'average value on close',
+                            type: 'average',
+                            valueDim: 'close'
+                        }
+                    ],
+                    tooltip: {
+                        formatter: function (param) {
+                            return param.name + '<br>' + (param.data.coord || '');
+                        }
+                    }
+                },
+                markLine: {
+                    symbol: ['none', 'none'],
+                    data: [
+                    [
+                        {
+                            name: 'from lowest to highest',
+                            type: 'min',
+                            valueDim: 'lowest',
+                            symbol: 'circle',
+                            symbolSize: 10,
+                            label: {
+                                show: false
+                            },
+                            emphasis: {
+                                label: {
+                                    show: false
+                                }
+                            }
+                        },
+                        {
+                            type: 'max',
+                            valueDim: 'highest',
+                            symbol: 'circle',
+                            symbolSize: 10,
+                            label: {
+                                show: false
+                            },
+                            emphasis: {
+                                label: {
+                                    show: false
+                                }
+                            }
+                        }
+                    ],
+                    {
+                        name: 'min line on close',
+                        type: 'min',
+                        valueDim: 'close'
+                    },
+                    {
+                        name: 'max line on close',
+                        type: 'max',
+                        valueDim: 'close'
+                    }
+                    ]
                 }
             },
-            brushSelect: true
-        },
-        {
-            type: 'inside'
-        }
-        ],
-        series: [
-        {
-            type: 'candlestick',
-            name: 'Day',
-            data: data,
-            itemStyle: {
-                color: '#FD1050',
-                color0: '#0CF49B',
-                borderColor: '#FD1050',
-                borderColor0: '#0CF49B'
+            {
+                name: 'MA5',
+                type: 'line',
+                data: this.calculateMA(5),
+                smooth: true,
+                lineStyle: {
+                    opacity: 0.5
+                }
+            },
+            {
+                name: 'MA10',
+                type: 'line',
+                data: this.calculateMA(10),
+                smooth: true,
+                lineStyle: {
+                    opacity: 0.5
+                }
+            },
+            {
+                name: 'MA20',
+                type: 'line',
+                data: this.calculateMA(20),
+                smooth: true,
+                lineStyle: {
+                    opacity: 0.5
+                }
+            },
+            {
+                name: 'MA30',
+                type: 'line',
+                data: this.calculateMA(30),
+                smooth: true,
+                lineStyle: {
+                    opacity: 0.5
+                }
             }
-        },
-        {
-            name: 'MA5',
-            type: 'line',
-            data: calculateMA(5, data),
-            smooth: true,
-            showSymbol: false,
-            lineStyle: {
-                width: 1
-            }
-        },
-        {
-            name: 'MA10',
-            type: 'line',
-            data: calculateMA(10, data),
-            smooth: true,
-            showSymbol: false,
-            lineStyle: {
-                width: 1
-            }
-        },
-        {
-            name: 'MA20',
-            type: 'line',
-            data: calculateMA(20, data),
-            smooth: true,
-            showSymbol: false,
-            lineStyle: {
-                width: 1
-            }
-        },
-        {
-            name: 'MA30',
-            type: 'line',
-            data: calculateMA(30, data),
-            smooth: true,
-            showSymbol: false,
-            lineStyle: {
-                width: 1
-            }
-        }
-        ]
+            ]
     })
+    },
 }
-    }
 }
+    
+
   </script>
   
   
