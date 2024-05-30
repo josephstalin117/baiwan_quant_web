@@ -91,10 +91,7 @@
       const minDate = new Date(today);
       minDate.setDate(minDate.getDate() - 7);
       const maxDate = new Date(today);
-      const upColor = '#ec0000';
-      const upBorderColor = '#8A0000';
-      const downColor = '#00da3c';
-      const downBorderColor = '#008F28';
+
       const data0 = [
             ['2013/1/24', 2320.26, 2320.26, 2287.3, 2362.94],
             ['2013/1/25', 2300, 2291.3, 2288.26, 2308.38],
@@ -186,7 +183,7 @@
             ['2013/6/13', 2190.1, 2148.35, 2126.22, 2190.1]
         ];
       return {
-        data0: this.splitData(data0),
+        data1: this.splitData(data0),
         startdate: this.formatDate(minDate),
         enddate: this.formatDate(maxDate),
         starttimeselected: "00:00:00",
@@ -226,6 +223,10 @@
         lineTime: [],
         lineLegend: [],
         lineSeries: [],
+        upColor: '#ec0000',
+        upBorderColor: '#8A0000',
+        downColor: '#00da3c',
+        downBorderColor: '#008F28',
       };
     },
     //实时监听数据
@@ -363,14 +364,14 @@
       },
       calculateMA: function (dayCount) {
         var result = [];
-        for (var i = 0, len = this.data0.values.length; i < len; i++) {
+        for (var i = 0, len = this.data1.values.length; i < len; i++) {
             if (i < dayCount) {
                 result.push('-');
                 continue;
             }
             var sum = 0;
             for (var j = 0; j < dayCount; j++) {
-                sum += +this.data0.values[i - j][1];
+                sum += +this.data1.values[i - j][1];
             }
             result.push(sum / dayCount);
         }
@@ -393,7 +394,7 @@
             },
             xAxis: {
                 type: 'category',
-                data: this.data0.categoryData,
+                data: this.data1.categoryData,
                 boundaryGap: false,
                 axisLine: { onZero: false },
                 splitLine: { show: false },
@@ -429,7 +430,7 @@
             {
                 name: '日K',
                 type: 'candlestick',
-                data: this.data0.values,
+                data: this.data1.values,
                 itemStyle: {
                     color: this.upColor,
                     color0: this.downColor,
