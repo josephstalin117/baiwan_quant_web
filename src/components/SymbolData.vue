@@ -13,18 +13,18 @@
             <p>starttime: '{{ starttime }}'</p>
           </div>
           <div class="col">
-            <label for="start-timepicker">时间</label>
-            <b-form-select
+            <label for="start-timepicker">开始时间</label>
+            <b-form-timepicker
               id="start-timepicker"
               v-model="starttimeselected"
               :options="starttimeoptions"
-            ></b-form-select>
+            ></b-form-timepicker>
             <div class="mt-3">
               Selected: <strong>{{ starttimeselected }}</strong>
             </div>
           </div>
           <div class="col">
-            <label for="end-datepicker">结束时间</label>
+            <label for="end-datepicker">结束日期</label>
             <b-form-datepicker
               id="end-datepicker"
               v-model="enddate"
@@ -34,38 +34,39 @@
             <p>endtime: '{{ endtime }}'</p>
           </div>
           <div class="col">
-            <label for="end-timepicker">时间</label>
-            <b-form-select
+            <label for="end-timepicker">结束时间</label>
+            <b-form-timepicker
               id="end-timepicker"
               v-model="endtimeselected"
               :options="endtimeoptions"
-            ></b-form-select>
+            ></b-form-timepicker>
             <div class="mt-3">
               Selected: <strong>{{ endtimeselected }}</strong>
             </div>
           </div>
           <div class="col">
-            <label for="sympolSelect" class="form-label">指数选择</label>
+            <!-- <label for="sympolSelect" class="form-label">指数选择</label> -->
+            <label for="sympolTypeSelect" class="form-label">类型</label>
             <b-form-select
-              v-model="waterselected"
-              :options="wateroptions"
+              v-model="symboltypeselected"
+              :options="symboltypeoptions"
               multiple
               :select-size="4"
             ></b-form-select>
             <div class="mt-3">
-              Selected: <strong>{{ waterselected }}</strong>
+              Selected: <strong>{{ symboltypeselected }}</strong>
             </div>
           </div>
           <div class="col">
-            <label for="indicatorSelect" class="form-label">指标选择</label>
+            <label for="sympolSelect" class="form-label">指标选择</label>
             <b-form-select
-              v-model="indicatorselected"
-              :options="indicatoroptions"
+              v-model="sympolselected"
+              :options="sympoloptions"
               multiple
               :select-size="4"
             ></b-form-select>
             <div class="mt-3">
-              Selected: <strong>{{ indicatorselected }}</strong>
+              Selected: <strong>{{ sympolselected }}</strong>
             </div>
           </div>
         </div>
@@ -76,7 +77,7 @@
           <b-button block variant="primary" v-on:click="updateLineSeries">查询</b-button>
         </div>
         <div class="row mb-3">
-          <div id="candleChart" :style="{ width: '1000px', height: '600px' }"></div>
+          <div id="candleChart" :style="{ width: '3600px', height: '600px' }"></div>
         </div>
       </div>
     </div>
@@ -84,7 +85,7 @@
   
   <script>
   export default {
-    name: "IndexData",
+    name: "SymbolData",
     data() {
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -186,6 +187,7 @@
         data1: this.splitData(data0),
         startdate: this.formatDate(minDate),
         enddate: this.formatDate(maxDate),
+        // 更换为Timer
         starttimeselected: "00:00:00",
         starttimeoptions: [
           { value: "00:00:00", text: "00" },
@@ -206,13 +208,13 @@
         ],
         starttime: this.formatDate(minDate) + " " + "00:00:00",
         endtime: this.formatDate(maxDate) + " " + "00:00:00",
-        waterselected: ["吴村"],
-        wateroptions: [
-          { value: "吴村", text: "吴村" },
-          { value: "大套桥", text: "大套桥" },
+        symboltypeselected: ["index"],
+        symboltypeoptions: [
+          { value: "index", text: "index" },
+          { value: "stock", text: "stock" },
         ],
-        indicatorselected: ["TOTAL_PHOSPHORUS"],
-        indicatoroptions: [
+        sympolselected: ["TOTAL_PHOSPHORUS"],
+        sympoloptions: [
           { value: "TOTAL_PHOSPHORUS", text: "总磷" },
           { value: "PH_VALUE", text: "pH" },
           { value: "DISSOLVED_OXYGEN", text: "溶解氧" },
@@ -282,7 +284,22 @@
         });
         this.wateroptions = waterstations;
       },
-      //get all index list
+    //get all symbol type
+    getSymbolType: async function () {
+        const url = this.$common.baseUrl + "dataprovider/getSymbolType";
+        let response = await this.$http.get(url);
+        const symboltypes = [];
+        // TODO
+        response.data["resData"]["resList"].forEach((station) => {
+          //console.log(station);
+          symboltypes.push({
+            value: station["surfaceName"],
+            text: station["surfaceName"],
+          });
+        });
+        this.wateroptions = waterstations;
+      },
+      //get all symbol list
       getSymbolList: async function () {
         const url = this.$common.baseUrl + "dataprovider/getSymbolList";
         let response = await this.$http.get(url);
@@ -578,12 +595,9 @@
 }
     
 
-  </script>
-  
-  
-  
-  <!-- Add "scoped" attribute to limit CSS to this component only -->
-  <style scoped>
+</script>
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
   h1,
   h2 {
     font-weight: normal;
@@ -608,5 +622,5 @@
     transform: translate(-50%, 0);
     padding: 10px;
   }
-  </style>
+</style>
   
