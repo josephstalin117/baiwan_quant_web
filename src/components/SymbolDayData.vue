@@ -72,13 +72,13 @@
           <div class="col">
             <label for="sympolSelect" class="form-label">指标选择</label>
             <b-form-select
-              v-model="sympolselected"
-              :options="sympoloptions"
+              v-model="symbolselected"
+              :options="symboloptions"
               multiple
               :select-size="4"
             ></b-form-select>
             <div class="mt-3">
-              Selected: <strong>{{ sympolselected }}</strong>
+              Selected: <strong>{{ symbolselected }}</strong>
             </div>
           </div>
         </div>
@@ -223,16 +223,12 @@
         symboltypeselected: ["index"],
         symboltypeoptions: [
           { value: "index", text: "index" },
-          { value: "stock", text: "stock" },
+        //   { value: "stock", text: "stock" },
         ],
-        sympolselected: ["TOTAL_PHOSPHORUS"],
-        sympoloptions: [
-          { value: "TOTAL_PHOSPHORUS", text: "总磷" },
-          { value: "PH_VALUE", text: "pH" },
-          { value: "DISSOLVED_OXYGEN", text: "溶解氧" },
-          { value: "PERMANGANATE_INDEX", text: "高锰酸盐指数" },
-          { value: "AMMONIA", text: "氨氮" },
-          { value: "TOTAL_NITROGEN", text: "总氮" },
+        symbolselected: ["000001.SH"],
+        symboloptions: [
+          { value: "000001.SH", text: "上证指数" },
+          { value: "000300.SH", text: "沪深300" },
         ],
         lineTime: [],
         lineLegend: [],
@@ -269,6 +265,7 @@
     mounted() {
       this.drawLine();
       this.getSymbolType();
+      this.getSymbols();
     },
     methods: {
       formatDate: function (date) {
@@ -279,54 +276,42 @@
         if (month.length < 2) month = "0" + month;
         if (day.length < 2) day = "0" + day;
         //return [year, month, day].join("-");
-        return [year, month, day].join("-");
-      },
-      //获取所有站点名
-      getWaterStations: async function () {
-        //TODO: 需要修改成固定值 
-        const url = this.$common.baseUrl + "money_tracker/showtypes";
-        let response = await this.$http.get(url);
-        const waterstations = [];
-        response.data["resData"]["resList"].forEach((station) => {
-          //console.log(station);
-          waterstations.push({
-            value: station["surfaceName"],
-            text: station["surfaceName"],
-          });
-        });
-        this.wateroptions = waterstations;
+        return [year, month, day].join("");
       },
     //get all symbol type
     getSymbolType: async function () {
         const url = this.$common.baseUrl + "dataprovider/getSymbolType";
         let response = await this.$http.get(url);
-        const symboltypes = [];
+        const symboltypeoptions = [];
         // TODO: need update
-        response.data["resData"]["resList"].forEach((element) => {
-          symboltypes.push({
+        response.data["data"]["resList"].forEach((element) => {
+            symboltypeoptions.push({
+              value: element,
+              text: element,
+          });
+        });
+        this.symboltypeoptions = symboltypeoptions;
+      },
+    //get all symbols
+    getSymbols: async function () {
+        const url = this.$common.baseUrl + "dataprovider/getSymbols";
+        let response = await this.$http.get(url, {
+          params: {
+            symbolType: this.symboltypeselected[0],
+          },
+        });
+        const symboloptions = [];
+        response.data["data"]["resList"].forEach((element) => {
+          //console.log(station);
+          symboloptions.push({
             value: element,
             text: element,
           });
         });
-        this.symboltypes = symboltypes;
+        this.symboloptions = symboloptions;
       },
-      //get all symbol list
-      getSymbolList: async function () {
-        const url = this.$common.baseUrl + "dataprovider/getSymbolList";
-        let response = await this.$http.get(url);
-        const waterstations = [];
-        response.data["resData"]["resList"].forEach((station) => {
-          //console.log(station);
-          waterstations.push({
-            value: station["surfaceName"],
-            text: station["surfaceName"],
-          });
-        });
-        this.wateroptions = waterstations;
-      },
-      //更新waterSeries
       updateLineSeries: function () {
-        // 清空之前的数据
+        // clear previous data
         this.lineSeries = [];
         this.lineTime = [];
         this.lineLegend = [];
@@ -634,4 +619,3 @@
     padding: 10px;
   }
 </style>
-  
