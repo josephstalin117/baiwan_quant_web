@@ -147,10 +147,12 @@
             //TODO: need update categoryDate
             categoryData.push(rawData[i].splice(0, 1)[0]);
             values.push(rawData[i]);
+            volumes.push([i, rawData[i][4], rawData[i][0] > rawData[i][1] ? 1 : -1]);
         }
         return {
             categoryData: categoryData,
-            values: values
+            values: values,
+            volumes: volumes
         };
       },
       formatDate: function (date) {
@@ -214,18 +216,18 @@
       },
       updateLineSeries: function () {
         // clear previous data
-        console.log(this.lineSeries);
+        //console.log(this.lineSeries);
         this.lineSeries = [];
         const series = [];
         this.getSymbolDaily(this.symbolselected, this.symboltypeselected).then(val => {
             val['data']['resList'].forEach((element) => {
                 element[0] = this.formatSeriesDate(element[0]);
-                console.log(element);
+                //console.log(element);
                 series.push(element);
             });
-            console.log(series)
+            //console.log(series)
             this.lineSeries = this.splitData(series);
-            console.log(this.lineSeries);
+            //console.log(this.lineSeries);
         });
 
       },
@@ -304,43 +306,6 @@
                     color0: this.downColor,
                     borderColor: this.upBorderColor,
                     borderColor0: this.downBorderColor
-                },
-                markPoint: {
-                    label: {
-                        formatter: function (param) {
-                            return param != null ? Math.round(param.value) + '' : '';
-                        }
-                    },
-                    data: [
-                        {
-                            name: 'Mark',
-                            coord: ['2013/5/31', 2300],
-                            value: 2300,
-                            itemStyle: {
-                            color: 'rgb(41,60,85)'
-                            }
-                        },
-                        {
-                            name: 'highest value',
-                            type: 'max',
-                            valueDim: 'highest'
-                        },
-                        {
-                            name: 'lowest value',
-                            type: 'min',
-                            valueDim: 'lowest'
-                        },
-                        {
-                            name: 'average value on close',
-                            type: 'average',
-                            valueDim: 'close'
-                        }
-                    ],
-                    tooltip: {
-                        formatter: function (param) {
-                            return param.name + '<br>' + (param.data.coord || '');
-                        }
-                    }
                 },
                 markLine: {
                     symbol: ['none', 'none'],
