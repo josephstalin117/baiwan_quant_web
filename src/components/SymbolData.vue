@@ -10,18 +10,6 @@
               class="mb-2"
             ></b-form-datepicker>
             <p>startdate: '{{ startdate }}'</p>
-            <p>starttime: '{{ starttime }}'</p>
-          </div>
-          <div class="col">
-            <label for="start-timepicker">开始时间</label>
-            <b-form-timepicker
-              id="start-timepicker"
-              v-model="starttimeselected"
-              :options="starttimeoptions"
-            ></b-form-timepicker>
-            <div class="mt-3">
-              Selected: <strong>{{ starttimeselected }}</strong>
-            </div>
           </div>
           <div class="col">
             <label for="end-datepicker">结束日期</label>
@@ -31,61 +19,32 @@
               class="mb-2"
             ></b-form-datepicker>
             <p>enddate: '{{ enddate }}'</p>
-            <p>endtime: '{{ endtime }}'</p>
           </div>
           <div class="col">
-            <label for="end-timepicker">结束时间</label>
-            <b-form-timepicker
-              id="end-timepicker"
-              v-model="endtimeselected"
-              :options="endtimeoptions"
-            ></b-form-timepicker>
-            <div class="mt-3">
-              Selected: <strong>{{ endtimeselected }}</strong>
-            </div>
-          </div>
-          <div class="col">
-            <!-- <label for="sympolSelect" class="form-label">指数选择</label> -->
             <label for="sympolTypeSelect" class="form-label">类型</label>
             <b-form-select
               v-model="symboltypeselected"
               :options="symboltypeoptions"
-              multiple
               :select-size="4"
             ></b-form-select>
             <div class="mt-3">
               Selected: <strong>{{ symboltypeselected }}</strong>
             </div>
           </div>
-          <!-- <div class="col">
-            <label for="sympolTypeSelect" class="form-label">频率</label>
-            <b-form-select
-              v-model="symboltypeselected"
-              :options="symboltypeoptions"
-              multiple
-              :select-size="4"
-            ></b-form-select>
-            <div class="mt-3">
-              Selected: <strong>{{ symboltypeselected }}</strong>
-            </div>
-          </div> -->
           <div class="col">
             <label for="sympolSelect" class="form-label">指标选择</label>
             <b-form-select
-              v-model="sympolselected"
-              :options="sympoloptions"
-              multiple
+              v-model="symbolselected"
+              :options="symboloptions"
               :select-size="4"
             ></b-form-select>
             <div class="mt-3">
-              Selected: <strong>{{ sympolselected }}</strong>
+              Selected: <strong>{{ symbolselected }}</strong>
             </div>
           </div>
         </div>
         <div class="row mb-3">
-          timeline: '{{ lineTime }}'
-          linelegend: '{{ lineLegend }}'
-          lineSeries: '{{ lineSeries }}'
+          <!-- lineSeries: '{{ lineSeries }}' -->
           <b-button block variant="primary" v-on:click="updateLineSeries">查询</b-button>
         </div>
         <div class="row mb-3">
@@ -94,18 +53,17 @@
       </div>
     </div>
   </template>
-  
   <script>
   export default {
-    name: "SymbolData",
+    name: "SymbolDayData",
     data() {
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const minDate = new Date(today);
-      minDate.setDate(minDate.getDate() - 7);
+      minDate.setDate(minDate.getDate() - 365);
       const maxDate = new Date(today);
       // Each item: open，close，lowest，highest
-      const data0 = [
+      const lineSeries = [
             ['2013/1/24', 2320.26, 2320.26, 2287.3, 2362.94],
             ['2013/1/25', 2300, 2291.3, 2288.26, 2308.38],
             ['2013/1/28', 2295.35, 2346.5, 2295.35, 2346.92],
@@ -143,100 +101,22 @@
             ['2013/3/20', 2257.74, 2317.37, 2257.42, 2317.86],
             ['2013/3/21', 2318.21, 2324.24, 2311.6, 2330.81],
             ['2013/3/22', 2321.4, 2328.28, 2314.97, 2332],
-            ['2013/3/25', 2334.74, 2326.72, 2319.91, 2344.89],
-            ['2013/3/26', 2318.58, 2297.67, 2281.12, 2319.99],
-            ['2013/3/27', 2299.38, 2301.26, 2289, 2323.48],
-            ['2013/3/28', 2273.55, 2236.3, 2232.91, 2273.55],
-            ['2013/3/29', 2238.49, 2236.62, 2228.81, 2246.87],
-            ['2013/4/1', 2229.46, 2234.4, 2227.31, 2243.95],
-            ['2013/4/2', 2234.9, 2227.74, 2220.44, 2253.42],
-            ['2013/4/3', 2232.69, 2225.29, 2217.25, 2241.34],
-            ['2013/4/8', 2196.24, 2211.59, 2180.67, 2212.59],
-            ['2013/4/9', 2215.47, 2225.77, 2215.47, 2234.73],
-            ['2013/4/10', 2224.93, 2226.13, 2212.56, 2233.04],
-            ['2013/4/11', 2236.98, 2219.55, 2217.26, 2242.48],
-            ['2013/4/12', 2218.09, 2206.78, 2204.44, 2226.26],
-            ['2013/4/15', 2199.91, 2181.94, 2177.39, 2204.99],
-            ['2013/4/16', 2169.63, 2194.85, 2165.78, 2196.43],
-            ['2013/4/17', 2195.03, 2193.8, 2178.47, 2197.51],
-            ['2013/4/18', 2181.82, 2197.6, 2175.44, 2206.03],
-            ['2013/4/19', 2201.12, 2244.64, 2200.58, 2250.11],
-            ['2013/4/22', 2236.4, 2242.17, 2232.26, 2245.12],
-            ['2013/4/23', 2242.62, 2184.54, 2182.81, 2242.62],
-            ['2013/4/24', 2187.35, 2218.32, 2184.11, 2226.12],
-            ['2013/4/25', 2213.19, 2199.31, 2191.85, 2224.63],
-            ['2013/4/26', 2203.89, 2177.91, 2173.86, 2210.58],
-            ['2013/5/2', 2170.78, 2174.12, 2161.14, 2179.65],
-            ['2013/5/3', 2179.05, 2205.5, 2179.05, 2222.81],
-            ['2013/5/6', 2212.5, 2231.17, 2212.5, 2236.07],
-            ['2013/5/7', 2227.86, 2235.57, 2219.44, 2240.26],
-            ['2013/5/8', 2242.39, 2246.3, 2235.42, 2255.21],
-            ['2013/5/9', 2246.96, 2232.97, 2221.38, 2247.86],
-            ['2013/5/10', 2228.82, 2246.83, 2225.81, 2247.67],
-            ['2013/5/13', 2247.68, 2241.92, 2231.36, 2250.85],
-            ['2013/5/14', 2238.9, 2217.01, 2205.87, 2239.93],
-            ['2013/5/15', 2217.09, 2224.8, 2213.58, 2225.19],
-            ['2013/5/16', 2221.34, 2251.81, 2210.77, 2252.87],
-            ['2013/5/17', 2249.81, 2282.87, 2248.41, 2288.09],
-            ['2013/5/20', 2286.33, 2299.99, 2281.9, 2309.39],
-            ['2013/5/21', 2297.11, 2305.11, 2290.12, 2305.3],
-            ['2013/5/22', 2303.75, 2302.4, 2292.43, 2314.18],
-            ['2013/5/23', 2293.81, 2275.67, 2274.1, 2304.95],
-            ['2013/5/24', 2281.45, 2288.53, 2270.25, 2292.59],
-            ['2013/5/27', 2286.66, 2293.08, 2283.94, 2301.7],
-            ['2013/5/28', 2293.4, 2321.32, 2281.47, 2322.1],
-            ['2013/5/29', 2323.54, 2324.02, 2321.17, 2334.33],
-            ['2013/5/30', 2316.25, 2317.75, 2310.49, 2325.72],
-            ['2013/5/31', 2320.74, 2300.59, 2299.37, 2325.53],
-            ['2013/6/3', 2300.21, 2299.25, 2294.11, 2313.43],
-            ['2013/6/4', 2297.1, 2272.42, 2264.76, 2297.1],
-            ['2013/6/5', 2270.71, 2270.93, 2260.87, 2276.86],
-            ['2013/6/6', 2264.43, 2242.11, 2240.07, 2266.69],
-            ['2013/6/7', 2242.26, 2210.9, 2205.07, 2250.63],
-            ['2013/6/13', 2190.1, 2148.35, 2126.22, 2190.1]
+            ['2013/3/25', 2334.74, 2326.72, 2319.91, 2344.89]
         ];
       return {
-        data1: this.splitData(data0),
         startdate: this.formatDate(minDate),
         enddate: this.formatDate(maxDate),
-        // 更换为Timer
-        starttimeselected: "00:00:00",
-        starttimeoptions: [
-          { value: "00:00:00", text: "00" },
-          { value: "04:00:00", text: "04" },
-          { value: "08:00:00", text: "08" },
-          { value: "12:00:00", text: "12" },
-          { value: "16:00:00", text: "16" },
-          { value: "20:00:00", text: "20" },
-        ],
-        endtimeselected: "00:00:00",
-        endtimeoptions: [
-          { value: "00:00:00", text: "00" },
-          { value: "04:00:00", text: "04" },
-          { value: "08:00:00", text: "08" },
-          { value: "12:00:00", text: "12" },
-          { value: "16:00:00", text: "16" },
-          { value: "20:00:00", text: "20" },
-        ],
-        starttime: this.formatDate(minDate) + " " + "00:00:00",
-        endtime: this.formatDate(maxDate) + " " + "00:00:00",
-        symboltypeselected: ["index"],
+        symboltypeselected: "index",
         symboltypeoptions: [
           { value: "index", text: "index" },
-          { value: "stock", text: "stock" },
+        //   { value: "stock", text: "stock" },
         ],
-        sympolselected: ["TOTAL_PHOSPHORUS"],
-        sympoloptions: [
-          { value: "TOTAL_PHOSPHORUS", text: "总磷" },
-          { value: "PH_VALUE", text: "pH" },
-          { value: "DISSOLVED_OXYGEN", text: "溶解氧" },
-          { value: "PERMANGANATE_INDEX", text: "高锰酸盐指数" },
-          { value: "AMMONIA", text: "氨氮" },
-          { value: "TOTAL_NITROGEN", text: "总氮" },
+        symbolselected: "000001.SH",
+        symboloptions: [
+          { value: "000001.SH", text: "上证指数" },
+          { value: "000300.SH", text: "沪深300" },
         ],
-        lineTime: [],
-        lineLegend: [],
-        lineSeries: [],
+        lineSeries: this.splitData(lineSeries),
         upColor: '#ec0000',
         upBorderColor: '#8A0000',
         downColor: '#00da3c',
@@ -244,33 +124,35 @@
       };
     },
     //实时监听数据
-    // TODO: 需要处理起始时间不能大于结束时间的异常
     watch: {
-      startdate: function (val) {
-        this.starttime = val + " " + this.starttimeselected;
-      },
-      enddate: function (val) {
-        this.endtime = val + " " + this.starttimeselected;
-      },
-      starttimeselected: function (val) {
-        this.starttime = this.startdate + " " + val;
-      },
-      endtimeselected: function (val) {
-        this.endtime = this.enddate + " " + val;
-      },
       lineSeries: function(val){
         this.drawLine();
       },
-      lineTime: function(){
-        this.drawLine();
-      }
+      symboltypeselected: function(val){
+        this.getSymbols();
+      },
     },
     //DOM生命周期
     mounted() {
       this.drawLine();
       this.getSymbolType();
+      this.getSymbols();
     },
     methods: {
+      //TODO: need edit
+      splitData: function(rawData) {
+        const categoryData = [];
+        const values = [];
+        for (var i = 0; i < rawData.length; i++) {
+            //TODO: need update categoryDate
+            categoryData.push(rawData[i].splice(0, 1)[0]);
+            values.push(rawData[i]);
+        }
+        return {
+            categoryData: categoryData,
+            values: values
+        };
+      },
       formatDate: function (date) {
         var d = new Date(date),
           month = "" + (d.getMonth() + 1),
@@ -281,139 +163,83 @@
         //return [year, month, day].join("-");
         return [year, month, day].join("-");
       },
-      //获取所有站点名
-      getWaterStations: async function () {
-        //TODO: 需要修改成固定值 
-        const url = this.$common.baseUrl + "money_tracker/showtypes";
-        let response = await this.$http.get(url);
-        const waterstations = [];
-        response.data["resData"]["resList"].forEach((station) => {
-          //console.log(station);
-          waterstations.push({
-            value: station["surfaceName"],
-            text: station["surfaceName"],
-          });
-        });
-        this.wateroptions = waterstations;
+      formatSeriesDate: function (rawdate) {
+        var year = rawdate.substring(0, 4);
+        var month = rawdate.substring(4, 6);
+        var day = rawdate.substring(6, 8);
+        return [year, month, day].join("/");
       },
     //get all symbol type
     getSymbolType: async function () {
         const url = this.$common.baseUrl + "dataprovider/getSymbolType";
         let response = await this.$http.get(url);
-        const symboltypes = [];
+        const symboltypeoptions = [];
         // TODO: need update
-        response.data["resData"]["resList"].forEach((element) => {
-          symboltypes.push({
+        response.data["data"]["resList"].forEach((element) => {
+            symboltypeoptions.push({
+              value: element,
+              text: element,
+          });
+        });
+        this.symboltypeoptions = symboltypeoptions;
+      },
+    //get all symbols
+    getSymbols: async function () {
+        const url = this.$common.baseUrl + "dataprovider/getSymbols";
+        let response = await this.$http.get(url, {
+          params: {
+            symbolType: this.symboltypeselected,
+          },
+        });
+        const symboloptions = [];
+        response.data["data"]["resList"].forEach((element) => {
+          symboloptions.push({
             value: element,
             text: element,
           });
         });
-        this.symboltypes = symboltypes;
+        this.symboloptions = symboloptions;
       },
-      //get all symbol list
-      getSymbolList: async function () {
-        const url = this.$common.baseUrl + "dataprovider/getSymbolList";
-        let response = await this.$http.get(url);
-        const waterstations = [];
-        response.data["resData"]["resList"].forEach((station) => {
-          //console.log(station);
-          waterstations.push({
-            value: station["surfaceName"],
-            text: station["surfaceName"],
-          });
-        });
-        this.wateroptions = waterstations;
-      },
-      //更新waterSeries
-      updateLineSeries: function () {
-        // 清空之前的数据
-        this.lineSeries = [];
-        this.lineTime = [];
-        this.lineLegend = [];
-        // init time line
-        this.getTimeLine();
-          // {
-          //   name: "Search Engine",
-          //   type: "line",
-          //   stack: "Total",
-          //   data: [820, 932, 901, 934, 1290, 1330, 1320],
-          // },
-        // var series = [];
-        var seriesItem = {};
-        for (let i = 0; i < this.waterselected.length; ++i) {
-          for (let j = 0; j < this.indicatorselected.length; ++j) {
-            //获取promise返回值
-            this.queryWater(this.waterselected[i], this.indicatorselected[j]).then(val => {
-              //init seriesItem
-              // seriesItem = {type: "line", stack: "Total"};
-              // seriesItem = {type: "line", stack: "x"};
-              seriesItem = {type: "line"};
-              //add legends
-              this.lineLegend.push(this.waterselected[i] + " " + this.indicatorselected[j]);
-              //add series
-              seriesItem["name"] = this.waterselected[i] + " " + this.indicatorselected[j];
-              console.log(val);
-              seriesItem["data"] = [];
-              for (let index = 0; index < val["resData"]["line"].length; ++index) {
-                seriesItem["data"].push(val["resData"]["line"][index]["value"]);
-              }
-              this.lineSeries.push(seriesItem);
-            });
-          }
-        }
-        // this.lineSeries = series;
-      },
-      //TODO: 考虑多选情况，例如选择多个站点和多个不同指标
-      getTimeLine: async function () {
-        const url = this.$common.baseUrl + "money_tracker/showtypes";
+      getSymbolDaily: async function (symbolName, symbolType) {
+        const url = this.$common.baseUrl + "dataprovider/getSymbolDaily";
         let response = await this.$http.get(url, {
           params: {
-            surfaceName: this.waterselected[0],
-            indicator: this.indicatorselected[0],
-            startTime: this.starttime,
-            endTime: this.endtime,
-          },
-        });
-        this.lineTime = [];
-        for (let index = 0; index < response.data["resData"]["line"].length; ++index) {
-          this.lineTime.push(response.data["resData"]["line"][index]["time"]);
-        }
-      },
-      //TODO: 考虑多选情况，例如选择多个站点和多个不同指标
-      queryWater: async function (surfaceName, indicator) {
-        const url = this.$common.baseUrl + "money_tracker/showtypes";
-        let response = await this.$http.get(url, {
-          params: {
-            surfaceName: surfaceName,
-            indicator: indicator,
-            startTime: this.starttime,
-            endTime: this.endtime,
+            symbolName: symbolName,
+            symbolType: symbolType,
+            startTime: this.startdate.split('-').join(''),
+            endTime: this.enddate.split('-').join(''),
           },
         });
         return response.data;
       },
-      splitData: function(rawData) {
-        const categoryData = [];
-        const values = [];
-        for (var i = 0; i < rawData.length; i++) {
-            categoryData.push(rawData[i].splice(0, 1)[0]);
-            values.push(rawData[i]);
-        }
-        return {
-            categoryData: categoryData,
-            values: values
-        };
+      updateLineSeries: function () {
+        // clear previous data
+        console.log(this.lineSeries);
+        this.lineSeries = [];
+        const series = [];
+        this.getSymbolDaily(this.symbolselected, this.symboltypeselected).then(val => {
+            val['data']['resList'].forEach((element) => {
+                element[0] = this.formatSeriesDate(element[0]);
+                console.log(element);
+                series.push(element);
+            });
+            console.log(series)
+            this.lineSeries = this.splitData(series);
+            console.log(this.lineSeries);
+        });
+
       },
+
       calculateMA: function (dayCount) {
         var result = [];
-        for (var i = 0, len = this.data1.values.length; i < len; i++) {
+        for (var i = 0, len = this.lineSeries.values.length; i < len; i++) {
             if (i < dayCount) {
                 result.push('-');
                 continue;
             }
             var sum = 0;
             for (var j = 0; j < dayCount; j++) {
-                sum += +this.data1.values[i - j][1];
+                sum += +this.lineSeries.values[i - j][1];
             }
             result.push(sum / dayCount);
         }
@@ -436,7 +262,7 @@
             },
             xAxis: {
                 type: 'category',
-                data: this.data1.categoryData,
+                data: this.lineSeries.categoryData,
                 boundaryGap: false,
                 axisLine: { onZero: false },
                 splitLine: { show: false },
@@ -472,7 +298,7 @@
             {
                 name: '日K',
                 type: 'candlestick',
-                data: this.data1.values,
+                data: this.lineSeries.values,
                 itemStyle: {
                     color: this.upColor,
                     color0: this.downColor,
@@ -634,4 +460,3 @@
     padding: 10px;
   }
 </style>
-  

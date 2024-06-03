@@ -10,18 +10,6 @@
               class="mb-2"
             ></b-form-datepicker>
             <p>startdate: '{{ startdate }}'</p>
-            <p>starttime: '{{ starttime }}'</p>
-          </div>
-          <div class="col">
-            <label for="start-timepicker">开始时间</label>
-            <b-form-timepicker
-              id="start-timepicker"
-              v-model="starttimeselected"
-              :options="starttimeoptions"
-            ></b-form-timepicker>
-            <div class="mt-3">
-              Selected: <strong>{{ starttimeselected }}</strong>
-            </div>
           </div>
           <div class="col">
             <label for="end-datepicker">结束日期</label>
@@ -31,21 +19,8 @@
               class="mb-2"
             ></b-form-datepicker>
             <p>enddate: '{{ enddate }}'</p>
-            <p>endtime: '{{ endtime }}'</p>
           </div>
           <div class="col">
-            <label for="end-timepicker">结束时间</label>
-            <b-form-timepicker
-              id="end-timepicker"
-              v-model="endtimeselected"
-              :options="endtimeoptions"
-            ></b-form-timepicker>
-            <div class="mt-3">
-              Selected: <strong>{{ endtimeselected }}</strong>
-            </div>
-          </div>
-          <div class="col">
-            <!-- <label for="sympolSelect" class="form-label">指数选择</label> -->
             <label for="sympolTypeSelect" class="form-label">类型</label>
             <b-form-select
               v-model="symboltypeselected"
@@ -131,33 +106,12 @@
       return {
         startdate: this.formatDate(minDate),
         enddate: this.formatDate(maxDate),
-        // TODO:更换为Timer
-        starttimeselected: "00:00:00",
-        starttimeoptions: [
-          { value: "00:00:00", text: "00" },
-          { value: "04:00:00", text: "04" },
-          { value: "08:00:00", text: "08" },
-          { value: "12:00:00", text: "12" },
-          { value: "16:00:00", text: "16" },
-          { value: "20:00:00", text: "20" },
-        ],
-        endtimeselected: "00:00:00",
-        endtimeoptions: [
-          { value: "00:00:00", text: "00" },
-          { value: "04:00:00", text: "04" },
-          { value: "08:00:00", text: "08" },
-          { value: "12:00:00", text: "12" },
-          { value: "16:00:00", text: "16" },
-          { value: "20:00:00", text: "20" },
-        ],
-        starttime: this.formatDate(minDate) + " " + "00:00:00",
-        endtime: this.formatDate(maxDate) + " " + "00:00:00",
-        symboltypeselected: ["index"],
+        symboltypeselected: "index",
         symboltypeoptions: [
           { value: "index", text: "index" },
         //   { value: "stock", text: "stock" },
         ],
-        symbolselected: ["000001.SH"],
+        symbolselected: "000001.SH",
         symboloptions: [
           { value: "000001.SH", text: "上证指数" },
           { value: "000300.SH", text: "沪深300" },
@@ -170,35 +124,35 @@
       };
     },
     //实时监听数据
-    // TODO: 需要处理起始时间不能大于结束时间的异常
     watch: {
-      startdate: function (val) {
-        this.starttime = val + " " + this.starttimeselected;
-      },
-      enddate: function (val) {
-        this.endtime = val + " " + this.starttimeselected;
-      },
-      starttimeselected: function (val) {
-        this.starttime = this.startdate + " " + val;
-      },
-      endtimeselected: function (val) {
-        this.endtime = this.enddate + " " + val;
-      },
       lineSeries: function(val){
         this.drawLine();
+      },
+      symboltypeselected: function(val){
+        this.getSymbols();
       },
     },
     //DOM生命周期
     mounted() {
-      $('.datepicker').datepicker({
-        format: 'yyyymmdd',
-        startDate: '-3d'
-      });
       this.drawLine();
       this.getSymbolType();
       this.getSymbols();
     },
     methods: {
+      //TODO: need edit
+      splitData: function(rawData) {
+        const categoryData = [];
+        const values = [];
+        for (var i = 0; i < rawData.length; i++) {
+            //TODO: need update categoryDate
+            categoryData.push(rawData[i].splice(0, 1)[0]);
+            values.push(rawData[i]);
+        }
+        return {
+            categoryData: categoryData,
+            values: values
+        };
+      },
       formatDate: function (date) {
         var d = new Date(date),
           month = "" + (d.getMonth() + 1),
@@ -206,8 +160,14 @@
           year = d.getFullYear();
         if (month.length < 2) month = "0" + month;
         if (day.length < 2) day = "0" + day;
+        //return [year, month, day].join("-");
         return [year, month, day].join("-");
-        //return [year, month, day].join("");
+      },
+      formatSeriesDate: function (rawdate) {
+        var year = rawdate.substring(0, 4);
+        var month = rawdate.substring(4, 6);
+        var day = rawdate.substring(6, 8);
+        return [year, month, day].join("/");
       },
     //get all symbol type
     getSymbolType: async function () {
@@ -228,12 +188,11 @@
         const url = this.$common.baseUrl + "dataprovider/getSymbols";
         let response = await this.$http.get(url, {
           params: {
-            symbolType: this.symboltypeselected[0],
+            symbolType: this.symboltypeselected,
           },
         });
         const symboloptions = [];
         response.data["data"]["resList"].forEach((element) => {
-          //console.log(station);
           symboloptions.push({
             value: element,
             text: element,
@@ -247,53 +206,40 @@
           params: {
             symbolName: symbolName,
             symbolType: symbolType,
-            startTime: this.starttime,
-            endTime: this.endtime,
+            startTime: this.startdate.split('-').join(''),
+            endTime: this.enddate.split('-').join(''),
           },
         });
         return response.data;
       },
       updateLineSeries: function () {
         // clear previous data
+        //console.log(this.lineSeries);
         this.lineSeries = [];
+        const series = [];
         this.getSymbolDaily(this.symbolselected, this.symboltypeselected).then(val => {
-            seriesItem = {type: "line"};
-            //add legends
-            this.lineLegend.push(this.waterselected[i] + " " + this.indicatorselected[j]);
-            //add series
-            seriesItem["name"] = this.waterselected[i] + " " + this.indicatorselected[j];
-            console.log(val);
-            seriesItem["data"] = [];
-            for (let index = 0; index < val["resData"]["line"].length; ++index) {
-                seriesItem["data"].push(val["resData"]["line"][index]["value"]);
-            }
-            this.lineSeries.push(seriesItem);
+            val['data']['resList'].forEach((element) => {
+                element[0] = this.formatSeriesDate(element[0]);
+                //console.log(element);
+                series.push(element);
+            });
+            //console.log(series)
+            this.lineSeries = this.splitData(series);
+            //console.log(this.lineSeries);
         });
-        // this.lineSeries = series;
+
       },
 
-      splitData: function(rawData) {
-        const categoryData = [];
-        const values = [];
-        for (var i = 0; i < rawData.length; i++) {
-            categoryData.push(rawData[i].splice(0, 1)[0]);
-            values.push(rawData[i]);
-        }
-        return {
-            categoryData: categoryData,
-            values: values
-        };
-      },
       calculateMA: function (dayCount) {
         var result = [];
-        for (var i = 0, len = this.data1.values.length; i < len; i++) {
+        for (var i = 0, len = this.lineSeries.values.length; i < len; i++) {
             if (i < dayCount) {
                 result.push('-');
                 continue;
             }
             var sum = 0;
             for (var j = 0; j < dayCount; j++) {
-                sum += +this.data1.values[i - j][1];
+                sum += +this.lineSeries.values[i - j][1];
             }
             result.push(sum / dayCount);
         }
@@ -316,7 +262,7 @@
             },
             xAxis: {
                 type: 'category',
-                data: this.data1.categoryData,
+                data: this.lineSeries.categoryData,
                 boundaryGap: false,
                 axisLine: { onZero: false },
                 splitLine: { show: false },
@@ -352,49 +298,12 @@
             {
                 name: '日K',
                 type: 'candlestick',
-                data: this.data1.values,
+                data: this.lineSeries.values,
                 itemStyle: {
                     color: this.upColor,
                     color0: this.downColor,
                     borderColor: this.upBorderColor,
                     borderColor0: this.downBorderColor
-                },
-                markPoint: {
-                    label: {
-                        formatter: function (param) {
-                            return param != null ? Math.round(param.value) + '' : '';
-                        }
-                    },
-                    data: [
-                        {
-                            name: 'Mark',
-                            coord: ['2013/5/31', 2300],
-                            value: 2300,
-                            itemStyle: {
-                            color: 'rgb(41,60,85)'
-                            }
-                        },
-                        {
-                            name: 'highest value',
-                            type: 'max',
-                            valueDim: 'highest'
-                        },
-                        {
-                            name: 'lowest value',
-                            type: 'min',
-                            valueDim: 'lowest'
-                        },
-                        {
-                            name: 'average value on close',
-                            type: 'average',
-                            valueDim: 'close'
-                        }
-                    ],
-                    tooltip: {
-                        formatter: function (param) {
-                            return param.name + '<br>' + (param.data.coord || '');
-                        }
-                    }
                 },
                 markLine: {
                     symbol: ['none', 'none'],
