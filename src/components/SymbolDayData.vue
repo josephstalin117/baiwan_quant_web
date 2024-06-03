@@ -235,7 +235,7 @@
       drawLine() {
         let candleChart = this.$echarts.init(document.getElementById("candleChart"));
         candleChart.setOption({
-            title: { text: "上证指数" },
+            title: { text: this.symbolselected },
             legend: {
                 data: ['日K', 'MA5', 'MA10', 'MA20', 'MA30'],
                 inactiveColor: '#777'
@@ -244,7 +244,24 @@
                 trigger: 'axis',
                 axisPointer: {
                     type: 'cross'
+                },
+                position: function (pos, params, el, elRect, size) {
+                  const obj = {
+                    top: 10
+                  };
+                  obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
+                  return obj;
                 }
+            },
+            axisPointer: {
+              link: [
+              {
+                xAxisIndex: 'all'
+              }
+              ],
+              label: {
+                backgroundColor: '#777'
+              }
             },
             xAxis: [
                 // candelstick x-axis
@@ -255,7 +272,10 @@
                     axisLine: { onZero: false },
                     splitLine: { show: false },
                     min: 'dataMin',
-                    max: 'dataMax'
+                    max: 'dataMax',
+                    // axisPointer: {
+                    //   z: 100
+                    // }
                 },
                 // volume x-axis
                 {
@@ -288,31 +308,48 @@
                     splitLine: { show: false }
                 }
             ],
+            visualMap: {
+              show: false,
+              seriesIndex: 5,
+              dimension: 2,
+              pieces: [
+              {
+                value: 1,
+                color: this.downColor
+              },
+              {
+                value: -1,
+                color: this.upColor
+              }
+              ]
+            },
             grid: [
                 {
-                    left: '10%',
-                    right: '10%',
-                    bottom: '15%'
+                  left: '10%',
+                  right: '8%',
+                  height: '50%'
                 },
                 {
-                    left: '10%',
-                    right: '8%',
-                    top: '63%',
-                    height: '16%'
+                  left: '10%',
+                  right: '8%',
+                  top: '63%',
+                  height: '16%'
                 }
             ],
             dataZoom: [
             {
-                type: 'inside',
-                start: 50,
-                end: 100
+              type: 'inside',
+              xAxisIndex: [0, 1],
+              start: 98,
+              end: 100
             },
             {
-                show: true,
-                type: 'slider',
-                top: '90%',
-                start: 50,
-                end: 100
+              show: true,
+              xAxisIndex: [0, 1],
+              type: 'slider',
+              top: '85%',
+              start: 98,
+              end: 100
             }
             ],
             series: [
