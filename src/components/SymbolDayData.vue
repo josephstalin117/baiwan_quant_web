@@ -180,17 +180,17 @@
         const symboloptions = [];
         response.data["data"]["resList"].forEach((element) => {
           symboloptions.push({
-            value: element,
-            text: element,
+            value: element.symbol,
+            text: element.name,
           });
         });
         this.symboloptions = symboloptions;
       },
-      getSymbolDaily: async function (symbolName, symbolType) {
+      getSymbolDaily: async function (symbolCode, symbolType) {
         const url = this.$common.baseUrl + "dataprovider/getSymbolDaily";
         let response = await this.$http.get(url, {
           params: {
-            symbolName: symbolName,
+            symbolCode: symbolCode,
             symbolType: symbolType,
             startTime: this.startdate.split('-').join(''),
             endTime: this.enddate.split('-').join(''),
