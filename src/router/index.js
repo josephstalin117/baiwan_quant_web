@@ -4,6 +4,7 @@ import Dishboard from '@/components/Dishboard'
 import IndexData from '@/components/IndexData'
 import SymbolData from '@/components/SymbolData'
 import SymbolDayData from '@/components/SymbolDayData'
+import TradeOrderAdd from '@/components/TradeOrderAdd'
 
 
 Vue.use(Router)
@@ -24,6 +25,11 @@ export default new Router({
             path: '/symboldaydata',
             name: 'SymbolDayData',
             component: SymbolDayData
+        },
+        {
+            path: '/tradeorderadd',
+            name: 'TradeOrderAdd',
+            component: TradeOrderAdd
         },
         {
             path: '/',
