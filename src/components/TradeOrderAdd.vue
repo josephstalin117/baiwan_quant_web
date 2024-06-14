@@ -6,161 +6,76 @@
         <!-- <b-form @submit="onSubmit" @reset="onReset"> -->
         <b-form-group
           id="input-group-1"
-          label="科目"
+          label="股票编码"
           label-for="input-1-1"
         >
-  
-        <b-form-select v-model="accNumber" :options="accOptions" :select-size="10">
-        </b-form-select>
-  
-          <b-form-input
+        <b-form-input
+            id="input-1-1"
+            v-model="symbolCode"
+            placeholder="000001.SH"
+            required
+        ></b-form-input>
+        <b-form-input
             id="input-1-2"
-            v-model="accValue"
-            placeholder="科目年末余额"
+            v-model="price"
+            placeholder="买入价格"
             type="number"
             required
-          ></b-form-input>
-          <b-form-input
+        ></b-form-input>
+        <b-form-input
             id="input-1-3"
-            v-model="accValueLast"
-            placeholder="科目年初余额"
+            v-model="quantity"
+            placeholder="数量"
             type="number"
             required
-          ></b-form-input>
+        ></b-form-input>
+        <b-form-input
+            id="input-1-4"
+            v-model="commission"
+            placeholder="手续费"
+            type="number"
+            required
+        ></b-form-input>
+      </b-form-group>
+        <b-form-group
+          id="input-group-2"
+          label="方向"
+        >
+        <b-form-select v-model="sideselected" :options="sideOptions" :select-size="10">
+        </b-form-select>
         </b-form-group>
-  
-        <div v-if="isFixedAssets">
-        <template v-for="(company, index) in companies">
-        <b-form-group :key="index" label="固定资产:" label-for="input-2-1">
-            <b-form-input
-              v-model="company.name"
-              placeholder="输入固定资产名称"
-            ></b-form-input>
-            <b-form-input
-              v-model="company.value"
-              placeholder="输入固定资产费用"
-              type="number"
-            ></b-form-input>
-            <b-form-input
-              v-model="company.last_value"
-              placeholder="输入固定资产上年费用"
-              type="number"
-            ></b-form-input>
+        <b-form-group
+          id="input-group-3"
+          label="成交状态"
+        >
+        <b-form-select v-model="statusselected" :options="statusOptions" :select-size="10">
+        </b-form-select>
         </b-form-group>
-        </template>
-  
-  
-        <b-form-group id="input-group-2-1" label="累计折旧:" label-for="input-2-1">
-          <b-form-input
-            v-model="accValue2"
-            placeholder="累计折旧"
-            type="number"
-          ></b-form-input>
-          <b-form-input
-            v-model="accValue2Last"
-            placeholder="上年累计折旧"
-            type="number"
-          ></b-form-input>
+        <b-form-group
+          id="input-group-4"
+          label="挂单"
+        >
+        <b-form-select v-model="tradetypeselected" :options="tradeTypeOptions" :select-size="10">
+        </b-form-select>
         </b-form-group>
-  
-        <b-form-group id="input-group-2-2" label="固定资产原值:" label-for="input-2-1">
-          <b-form-input
-            v-model="accValue3"
-            placeholder="固定资产原值"
-            type="number"
-          ></b-form-input>
-          <b-form-input
-            v-model="accValue3Last"
-            placeholder="固定资产上年原值"
-            type="number"
-          ></b-form-input>
-        </b-form-group>
-        </div>
-  
-        <div v-else-if="isMoneyFunds">
-        <b-form-group id="input-group-3-1" label="库存现金:" label-for="input-2-1">
-          <b-form-input
-            v-model="companies[0].value"
-            placeholder="输入年末库存现金费用"
-            type="number"
-          ></b-form-input>
-          <b-form-input
-            v-model="companies[0].last_value"
-            placeholder="输入年初库存现金费用"
-            type="number"
-          ></b-form-input>
-        </b-form-group>
-  
-         <b-form-group id="input-group-3-2" label="银行存款:" label-for="input-3-1">
-          <b-form-input
-            id="input-3-2"
-            v-model="companies[1].value"
-            placeholder="输入年末银行存款费用"
-            type="number"
-          ></b-form-input>
-          <b-form-input
-            v-model="companies[1].last_value"
-            placeholder="输入年初银行存款费用"
-            type="number"
-          ></b-form-input>
-        </b-form-group>
-  
-        <b-form-group id="input-group-3-3" label="其他货币资金:" label-for="input-3-1">
-          <b-form-input
-            id="input-3-3"
-            v-model="companies[2].value"
-            placeholder="输入年末其他货币资金"
-            type="number"
-          ></b-form-input>
-          <b-form-input
-            v-model="companies[2].last_value"
-            placeholder="输入年初其他货币资金"
-            type="number"
-          ></b-form-input>
-        </b-form-group>
-        </div>
-  
-        <div v-else-if="isPaidUpCapital">
-        <template v-for="(company, index) in companies">
-        <b-form-group :key="index" label="股东:" label-for="input-2-1">
-            <b-form-input
-              v-model="company.name"
-              placeholder="输入股东名称"
-            ></b-form-input>
-            <b-form-input
-              v-model="company.value"
-              placeholder="输入股东费用"
-              type="number"
-            ></b-form-input>
-            <b-form-input
-              v-model="company.last_value"
-              placeholder="输入上年股东费用"
-              type="number"
-            ></b-form-input>
-        </b-form-group>
-        </template>
-        </div>
-  
-        <div v-else-if="isTaxesPayable">
-        <template v-for="(company, index) in companies">
-        <b-form-group :key="index" label="税务:" label-for="input-2-1">
-            <b-form-input
-              v-model="company.name"
-              placeholder="输入税务名称"
-            ></b-form-input>
-            <b-form-input
-              v-model="company.value"
-              placeholder="输入税务费用"
-              type="number"
-            ></b-form-input>
-            <b-form-input
-              v-model="company.last_value"
-              placeholder="输入上年税务费用"
-              type="number"
-            ></b-form-input>
-        </b-form-group>
-        </template>
-        </div>
+
+        <div class="row mb-3">
+          <div class="col">
+            <label for="trade-datepicker">交易日期</label>
+            <b-form-datepicker
+              id="trade-datepicker"
+              v-model="tradedate"
+              class="mb-2"
+            ></b-form-datepicker>
+          </div>
+          <div class="col">
+            <label for="trade-timepicker">时间</label>
+            <b-form-select
+              id="trade-timepicker"
+              v-model="tradetime"
+            ></b-form-select>
+          </div>
+        </div>  
   
         <b-button type="submit" variant="primary" @click="saveTradeOrder">提交</b-button>
         <b-button type="reset" variant="danger" @click="initTradeOrder">重置</b-button>
@@ -184,11 +99,13 @@
     name: 'AccNote',
      data() {
         const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds());
         return {
           symbolCode: '',
           accountId: '',
-          tradeDate: this.formatDate(today),
+          tradeDatetime: this.formatDate(today),
+          tradedate: this.formatDate(today),
+          tradetime: this.formatDate(today),
           price: '',
           quantity: '',
           commission: '',
@@ -288,7 +205,7 @@
           console.log("init");
           this.symbolCode = "";
           this.accountId = "";
-          this.tradeDate = this.formatDate(today);
+          this.tradeDatetime = this.formatDate(today);
           this.price = '';
           this.quantity = '';
           this.commission = '';
@@ -298,54 +215,48 @@
           month = "" + (d.getMonth() + 1),
           day = "" + d.getDate(),
           year = d.getFullYear();
+          hour = d.getHours();
+          minute = d.getMinutes();
+          second = d.getSeconds();
           if (month.length < 2) month = "0" + month;
           if (day.length < 2) day = "0" + day;
+          console.log([year, month, day].join("-"));
+          console.log([hour, minute, second].join(":"));
           return [year, month, day].join("-");
+        },
+        //TODO: need update
+        getUserid: async function () {
+          const url = this.$common.baseUrl + "money_tracker/finduserid";
+          let response = await this.$http.get(url, {
+            params: {
+              username: this.$route.params.username,
+            },
+          }).then(response => {
+            if(response.data['code']=='1'){
+              this.userId = response.data['resData']['userid'];
+            }else{
+              alert(response.data['msg']);
+            }
+          }).catch(function (error) {
+            console.log(error);
+          });
         },
         checkRe(){
           var number_re = new RegExp("^\d+\.\d{2}$");
-          if (!number_re.test(this.accValue)) {
-              this.accValue = '';
-              alert("accValue数据错误");
+          if (!number_re.test(this.price)) {
+              this.price = '';
+              alert("价格数据错误");
               return false;
           }
-          if (!number_re.test(this.accValue2)) {
-              this.accValue2 = '';
-              alert("accValue数据错误");
+          if (!number_re.test(this.quantity)) {
+              this.quantity = '';
+              alert("数量数据错误");
               return false;
           }
-          if (!number_re.test(this.accValue3)) {
-              this.accValue3 = '';
-              alert("accValue数据错误");
+          if (!number_re.test(this.commission)) {
+              this.commission = '';
+              alert("交易费数据错误");
               return false;
-          }
-          if (!number_re.test(this.accValueLast)) {
-              this.accValueLast = '';
-              alert("accValue数据错误");
-              return false;
-          }
-          if (!number_re.test(this.ledgerAge1)) {
-              this.ledgerAge1 = '';
-              alert("accValue数据错误");
-              return false;
-          }
-          if (!number_re.test(this.ledgerAge2)) {
-              this.ledgerAge2 = '';
-              alert("accValue数据错误");
-              return false;
-          }
-          if (!number_re.test(this.ledgerAge3)) {
-              this.ledgerAge3 = '';
-              alert("accValue数据错误");
-              return false;
-          }
-          for(let i = 0; i < this.companies.length; i++){
-              if (!number_re.test(this.companies[i].value)) {
-                  this.companies[i].value = '';
-                  this.companies[i].name = '';
-                  alert("公司金融数据错误");
-                  return false;
-              }
           }
           return true;
         },
@@ -381,7 +292,7 @@
             params: {
               symbolCode: this.symbolCode,
               accountId: this.accountId,
-              tradeDate: this.tradeDate,
+              tradeDatetime: this.tradeDatetime,
               side: this.sideselected,
               price: this.price,
               tradeType: this.tradetypeselected,
@@ -395,7 +306,7 @@
             }).catch(function (error) {
                 console.log(error);
             });
-            this.initNote();
+            this.initTradeOrder();
         },
   
       }

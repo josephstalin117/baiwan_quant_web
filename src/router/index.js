@@ -27,7 +27,7 @@ export default new Router({
             component: SymbolDayData
         },
         {
-            path: '/tradeorderadd',
+            path: '/tradeorderadd/user/:username',
             name: 'TradeOrderAdd',
             component: TradeOrderAdd
         },
