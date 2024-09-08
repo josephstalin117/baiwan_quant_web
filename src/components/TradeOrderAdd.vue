@@ -183,15 +183,17 @@
       },
       //DOM生命周期
       mounted() {
-          this.getAccSubs();
+        this.initTradeOrder();
           //this.initCompanies();
       },
       methods: {
         initTradeOrder(){
           console.log("init");
+          const now = new Date();
+          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds());
           this.symbolCode = "";
-          this.accountId = "";
-          this.tradeDatetime = this.formatDate(today);
+          this.getAccountid();
+          this.tradeDatetime = this.formatDatetime(today);
           this.price = '';
           this.quantity = '';
           this.commission = '';
@@ -232,16 +234,15 @@
           if (day.length < 2) day = "0" + day;
           return [year, month, day].join("-");
         },
-        //TODO: need update
         getAccountid: async function () {
-          const url = this.$common.baseUrl + "money_tracker/finduserid";
+          const url = this.$common.baseUrl + "account/finduserid";
           let response = await this.$http.get(url, {
             params: {
               username: this.$route.params.username,
             },
           }).then(response => {
-            if(response.data['code']=='1'){
-              this.userId = response.data['resData']['userid'];
+            if(response.data['code']=='0'){
+              this.accountId = response.data['resData']['userid'];
             }else{
               alert(response.data['msg']);
             }
@@ -268,21 +269,8 @@
           }
           return true;
         },
-        getAccSubs: async function () {
-          const url = this.$common.baseUrl + "acc_noter/showsubs";
-          let response = await this.$http.get(url);
-          const accSubs = [];
-          response.data["resData"].forEach((subs) => {
-            accSubs.push({
-              value: subs["acc_number"],
-              text: subs["acc_name"],
-            });
-          });
-          this.accOptions = accSubs;
-        },
         saveTradeOrder: async function () {
           const url = this.$common.baseUrl + "/trader/saveTradeOrder";
-          this.filteCompanies();
           let response = await this.$http.get(url, {
             params: {
               symbolCode: this.symbolCode,
@@ -296,7 +284,7 @@
               commission: this.commission,
             }}).then(function (response) {
                 alert(response.data['msg']);
-                this.initNote();
+                this.initTradeOrder();
                 console.log(response);
             }).catch(function (error) {
                 console.log(error);
